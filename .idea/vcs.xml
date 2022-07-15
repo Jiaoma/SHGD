@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/reference/DIN" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/reference/Shift_GCN" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/reference/Social_STGCNN" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/reference/cdp" vcs="Git" />
+  </component>
+</project>

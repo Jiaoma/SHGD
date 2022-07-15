@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+reference/cdp/*
+reference/Shift_GCN/*
+*.tar
+*.pth
+*.png
+*.
