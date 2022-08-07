@@ -6,10 +6,15 @@ import torch
 from os.path import exists
 
 import json
-import numpy as np
 
 from config import *
 from utils import print_log
+
+
+from feature_extract.panda import GROUP_TYPES
+
+from scipy.optimize import linear_sum_assignment as linear_assignment
+from reference.cdp.source import graph
 
 
 def saveDict(src: dict, save_path: str):
@@ -420,13 +425,32 @@ def evaluatePANDA(cfg, result, fast=False,binary=True):
         fp+=FP
     # print('GT: numer', count)
     print("vidfid",vids_f1)
-
+    nrec={}
+    for n in range(2,7):
+        averec=[]
+        for vid in result['group'].keys():
+            _,rec,f1,_,_,_=Ngroup_eval(n,result['group'][vid]['members'],result['group'][vid]['gtmembers'])
+            averec.append(rec)
+        nrec[n]=sum(averec)/len(averec) if len(averec)!=0 else 0
     
     prec=safed(tp,(tp+fp))        
     recall=safed(tp,(tp+fn))
     f1=safed(2*prec*recall,(prec+recall))
 
     report = {}
+    for k,v in nrec.items():
+        report[str(k)]=v
+        
+    report['AUC_IoU']=AUC_IoU(result['group'],result['group'],list(result['group'].keys()))
+
+    mfz=0
+    mfm=0
+    
+    for vid in result['group'].keys():  # vid is video id.
+        TP,AL=mat_group_eval(result['group'][vid]['members'],result['group'][vid]['gtmembers'])
+        mfz+=TP
+        mfm+=AL
+    report['mat_IoU']=mfz/mfm if mfm!=0 else 0
     
 
     report['group_f1'] = f1 #each_group_f1.mean().tolist()
@@ -439,6 +463,24 @@ def evaluatePANDA(cfg, result, fast=False,binary=True):
     # since the 0 represents background.
     return report['group_f1']
 
+
+def acc(y_true, y_pred):
+    """
+    Calculate clustering accuracy. Require scikit-learn installed
+    # Arguments
+        y: true labels, numpy.array with shape `(n_samples,)`
+        y_pred: predicted labels, numpy.array with shape `(n_samples,)`
+    # Return
+        accuracy, in [0,1]
+    """
+    y_true = y_true.astype(np.int64)
+    D = max(y_pred.max(), y_true.max()) + 1
+    w = np.zeros((D, D), dtype=np.int64)
+    for i in range(y_pred.size):
+        w[y_pred[i], y_true[i]] += 1
+
+    ind = linear_assignment(w.max() - w)
+    return sum([w[i, j] for i, j in ind]) * 1.0 / y_pred.size
 
 
 def evaluate_from_file(path):
