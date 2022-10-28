@@ -1,9 +1,14 @@
 # Self-supervised Social Relation Representation for Human Group Detection 
-[[paper]]()
+[[paper]](https://arxiv.org/abs/2203.03843)
 
 If you find our work or the codebase inspiring and useful to your research, please cite
 ```bibtex
-x
+@article{li2022self,
+  title={Self-supervised Social Relation Representation for Human Group Detection},
+  author={Li, Jiacheng and Han, Ruize and Yan, Haomin and Qian, Zekun and Feng, Wei and Wang, Song},
+  journal={arXiv preprint arXiv:2203.03843},
+  year={2022}
+}
 ```
 
 ## Preparation
