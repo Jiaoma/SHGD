@@ -48,7 +48,7 @@ for PANDA dataset, the structure of folders should be placed as below:
 1. Clone Unipose into `feature_extract` folder: `git clone git@github.com:bmartacho/UniPose.git`.
 2. Download `UniPose_MPII.pth` from [here](https://drive.google.com/drive/folders/1dPc7AayY2Pi3gjUURgozkuvlab5Vr-9n)
 3. Edit `YOURPATH` and `SAVEPATH` in `feature_extract/config.py`.
-4. Change working directory into feature_extract by `cd feature_extract` and run `python extractor.py` to extract skeletons and generate `train_all_features.pth.tar`, `train_group_interaction_features.pth.tar` and `train_interaction_features.pth.tar` into `SAVEPATH`.
+4. Change the working directory into feature_extract by `cd feature_extract` and run `python extractor.py` to extract skeletons and generate `train_all_features.pth.tar`, `train_group_interaction_features.pth.tar` and `train_interaction_features.pth.tar` into `SAVEPATH`.
 
 Then replace the paths in `config.json` with yours.
 
@@ -56,11 +56,12 @@ Then replace the paths in `config.json` with yours.
 The whole training consists of 2 stages.
 
 ### Stage 1
-`python scripts/selftrain_stage1.py`
+`python selftrain_stage1.py`
 
 ### Stage 2
-`python scripts/selftrain_stage2.py`
+`python selftrain_stage2.py`
 
-
-
-
+### Evaluate
+1. Comment `train_net(cfg)` and uncomment `# test_net(cfg)` in `selftrain_stage2.py`
+2. Set `stage2_model_path` in `selftrain_stage2.py` to the path of the evaluating model checkpoints.
+3. Run `python selftrain_stage2.py`

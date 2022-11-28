@@ -50,39 +50,17 @@ cfg.weight_decay = 0
 cfg.lr_plan = {}
 cfg.max_epoch = 200
 cfg.stage2_model_path=''
-# cfg.save_result_path='/home/lijiacheng/code/HIT/result/[Distant_stage2_OneGroupV5Net_K7_F3_stage2]<2021-04-06_10-58-39>/result_epoch24.pt'
+# cfg.save_result_path=''
 cfg.ablation=False
-cfg.iscontinue=True
+cfg.iscontinue=False
 
 
 cfg.exp_note = '+'.join([cfg.model_name,cfg.train_test_split,cfg.core_task,cfg.extra])
-cfg.continue_path='/home/molijuly/fast/PANDA/carefully/stage1_epoch200.pth'#'/home/molijuly/fast/PANDA/[PANDA_stage1_V3Net+91+Group+new_stage1]<2022-02-27_05-05-18>/stage1_epoch70.pth'#'/home/molijuly/fast/Virtual_small/[Virtual_stage1_V2Net+11+Group_stage1]<2021-11-13_17-12-00>/stage1_epoch100.pth'#'/home/molijuly/fast/PANDA/carefully/split%s/distill_epoch200.pth'%(cfg.exp_note.split('+')[-2])
-# if cfg.exp_note.endswith('Group'):
-cfg.use_unlabeled=True  # The unlabeled data refers to the data without interaction labels.
-# else:
-    # cfg.use_unlabeled=False # If the main task is interaction or avoidance detection then this option should set to be False.
+cfg.continue_path=''
+cfg.use_unlabeled=True
 cfg.stage1_model_path =''#/home/molijuly/fast/PANDA/carefully/split%s/stage%d_epoch200.pth'%(cfg.exp_note.split('+')[-2],cfg.training_stage) #'/home/molijuly/fast/PANDA/[PANDA_stage1_V1Net_stage1]<2021-08-26_17-21-02>/stage1_epoch50.pth'  # PATH OF THE BASE MODEL # Note: 2021.8.27: pt50 is better 100 is overfitted.
 
 
 # preprocess(join(cfg.data_path, 'frames'), cfg.image_size)
 train_net(cfg)
 # test_net(cfg)
-
-'''
-DEBUG
-'''
-# from pympler.tracker import SummaryTracker
-# # tracker = SummaryTracker()
-# dataset=PANDADataset(cfg,augment='distill')
-
-# params = {
-#         'batch_size': cfg.batch_size,
-#         'shuffle': True,
-#         'num_workers': 0,
-#         'pin_memory': False,
-#         'drop_last':False
-#     }
-# training_loader = torch.utils.data.DataLoader(dataset, **params)
-# for i,(aug,feature,who,interaction,group) in enumerate(training_loader):
-#     print(aug.shape)
-#     # tracker.print_diff()
