@@ -1,4 +1,4 @@
-from Shift_GCN.model.shift_gcn import *
+from .Shift_GCN.model.shift_gcn import *
 class MyModel(nn.Module):
     def __init__(self, num_class=64, num_point=16, in_channels=2, onlyFeature=False):
         super(MyModel, self).__init__()

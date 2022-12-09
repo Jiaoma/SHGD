@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from reference.my_shift_gcn import Model as ShiftGCN
 from reference.Shift_GCN.model.shift_gcn import Model as ShiftGCN
 from reference.stgcn_model import st_gcn
 from relation_net import RelationModule
