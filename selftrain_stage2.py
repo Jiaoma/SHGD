@@ -47,17 +47,17 @@ cfg.train_dropout_prob = 0
 cfg.weight_decay = 0
 cfg.lr_plan = {}
 cfg.max_epoch = 100
-cfg.stage2_model_path='/home/molijuly/stage2_epoch20_53.15%.pth'
+cfg.stage2_model_path='/XXX/stage2_wS.pth'
 cfg.ablation=False
 cfg.iscontinue=False
-cfg.continue_path='/home/molijuly/fast/PANDA/[PANDA_stage2_V1Net+91+Group+onlyGroup_stage2]<2021-10-15_03-52-51>/stage2_epoch100_36.51%.pth'#'/home/molijuly/fast/PANDA/[PANDA_stage2_V1Net+91+Group_stage2]<2021-10-02_18-02-35>/stage2_epoch100_2.17%.pth'
+cfg.continue_path=''
 
 cfg.exp_note = '+'.join([cfg.model_name,cfg.train_test_split,cfg.core_task,cfg.extra])
 # if cfg.exp_note.endswith('Group'):
 cfg.use_unlabeled=True  # The unlabeled data refers to the data without interaction labels.
 # else:
     # cfg.use_unlabeled=False # If the main task is interaction or avoidance detection then this option should set to be False.
-cfg.stage1_model_path ='/home/molijuly/fast/PANDA/carefully/split%s/stage%d_epoch200.pth'%(cfg.exp_note.split('+')[1],1)
+cfg.stage1_model_path ='XXXs/split%s/stage%d_epoch200.pth'%(cfg.exp_note.split('+')[1],1)
 cfg.relation_model_path =''
 train_net(cfg)
 

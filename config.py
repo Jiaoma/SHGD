@@ -1,6 +1,7 @@
 import time
 import os
 from utils import readJson
+import numpy as np
 
 class Config(object):
     """

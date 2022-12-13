@@ -15,7 +15,8 @@ If you find our work or the codebase inspiring and useful to your research, plea
 ### Dependence
 0. Python env: Pytorch 1.10, Cuda 11.1.
 1. Install [cdp](https://github.com/XiaohangZhan/cdp) into reference folder.
-2. Install [Shift_GCN](https://github.com/kchengiva/Shift-GCN) into reference folder.
+2. Install [Shift_GCN](https://github.com/kchengiva/Shift-GCN) into reference folder. In `reference/Shift_GCN/model/shift_gcn.py`, add `import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),"Temporal_shift/"))` to line 11.
 ### Datasets
 Datasets used in this paper can be downloaded from the dataset websites below:
 [PANDA](http://www.panda-dataset.com/)
@@ -65,3 +66,5 @@ The whole training consists of 2 stages.
 1. Comment `train_net(cfg)` and uncomment `# test_net(cfg)` in `selftrain_stage2.py`
 2. Set `stage2_model_path` in `selftrain_stage2.py` to the path of the evaluating model checkpoints.
 3. Run `python selftrain_stage2.py`
+
+Or you can edit the pt file path at the bottom of `evaluate.py` and run `python evaluate.py`.

@@ -489,3 +489,6 @@ def evaluate_from_file(path):
         result_path='./'
         log_path='./file.txt'
     print(evaluatePANDA(mycfg(),a))
+
+if __name__ == '__main__':
+    evaluate_from_file('/XXX/result.pt')
