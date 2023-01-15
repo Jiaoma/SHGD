@@ -1,18 +1,37 @@
 # -*-coding:UTF-8-*-
 import argparse
+import time
 import torch.optim
+import torch.nn as nn
 import torch.backends.cudnn as cudnn
+import sys
 import numpy as np
 import cv2
-# sys.path.append("..")
+import math
+sys.path.append("..")
 from UniPose.utils.utils import get_model_summary
+from UniPose.utils.utils import adjust_learning_rate as adjust_learning_rate
+from UniPose.utils.utils import save_checkpoint      as save_checkpoint
+from UniPose.utils.utils import printAccuracies      as printAccuracies
+from UniPose.utils.utils import guassian_kernel      as guassian_kernel
+from UniPose.utils.utils import get_parameters       as get_parameters
+from UniPose.utils       import Mytransforms         as  Mytransforms 
+from UniPose.utils.utils import getDataloader        as getDataloader
+from UniPose.utils.utils import getOutImages         as getOutImages
+from UniPose.utils.utils import AverageMeter         as AverageMeter
 from UniPose.utils.utils import draw_paint           as draw_paint
+from UniPose.utils       import evaluate             as evaluate
 from UniPose.utils.utils import get_kpts             as get_kpts
 
 from UniPose.model.unipose import unipose
 
+from tqdm import tqdm
 
 import torch.nn.functional as F
+from collections import OrderedDict
+from torchsummary import summary
+
+from PIL import Image
 
 
 class Trainer(object):
@@ -30,11 +49,11 @@ class Trainer(object):
         if args.dataset == 'LSP':
             args.train_dir  = '/PATH/TO/LSP/TRAIN'
             args.val_dir    = '/PATH/TO/LSP/VAL'
-            args.pretrained = 'semantic/references/Skeleton/UniPose/UniPose_LSP.tar'
+            args.pretrained = './UniPose/UniPose_LSP.tar'
         elif args.dataset == 'MPII':
             args.train_dir  = '/PATH/TO/MPIII/TRAIN'
             args.val_dir    = '/PATH/TO/MPIII/VAL'
-            args.pretrained = 'semantic/references/Skeleton/UniPose/UniPose_MPII.pth'
+            args.pretrained = './UniPose/UniPose_MPII.pth'
         self.args         = args
         self.train_dir    = args.train_dir
         self.val_dir      = args.val_dir
@@ -124,7 +143,7 @@ class Trainer(object):
 
 
 if __name__=='__main__':
-    img=cv2.imread('/home/molijuly/download.jpeg')
+    img=cv2.imread('/home/molijuly/download.jpg')
     train=Trainer()
     draw=train.test(img) # 15,2 -> 1,30
     print(draw.shape)

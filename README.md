@@ -67,4 +67,5 @@ The whole training consists of 2 stages.
 2. Set `stage2_model_path` in `selftrain_stage2.py` to the path of the evaluating model checkpoints.
 3. Run `python selftrain_stage2.py`
 
-Or you can edit the pt file path at the bottom of `evaluate.py` and run `python evaluate.py`.
+### Evaluation from result file
+You can edit the pt file path at the bottom of `evaluate.py` and run `python evaluate.py` to evaluate the saved human social grouping results.

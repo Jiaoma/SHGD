@@ -482,13 +482,138 @@ def acc(y_true, y_pred):
     ind = linear_assignment(w.max() - w)
     return sum([w[i, j] for i, j in ind]) * 1.0 / y_pred.size
 
+def evaluateJRDB_asPANDA(cfg, result, fast=False,binary=True):
+    '''
+    TODO:
+    1. interaction/avoids: prec,f1,recall (each type and overall)
+    2. group detection: first (preserve the IoU>0.5, then cal their prec, recall, f1. The IoU<=0.5 will be considered in the future.)
+    3. Draw confusion matrixs.
+    '''
+    GROUP_NUM = len(GROUP_TYPES)
+    # Confuse matrix
+    # group_num_matrix = np.zeros((GROUP_NUM, GROUP_NUM))
 
-def evaluate_from_file(path):
+
+    # delete bad group
+    group_preds = []
+    group_gts = []
+
+    def iou(a: list, b: list):
+        sameNum = 0
+        if len(b) == 0:
+            return 0
+        for i in a:
+            if i in b:
+                sameNum += 1
+        return sameNum/len(b)
+    tp=0
+    fp=0
+    fn=0
+    
+    '''
+    remove noisy
+    '''
+    vids_f1={}
+    
+    
+    
+    for vfid in result['group'].keys():  # vfid is video id.
+        # pred_ck=[0,]*len(result['group'][vfid]['members'])
+        # gt_ck=[0,]*len(result['group'][vfid]['gtmembers'])
+        # for i, g in enumerate(result['group'][vfid]['members']):
+        #     gts = result['group'][vfid]['gtmembers']
+        #     for j, ggt in enumerate(gts):
+        #         if iou(g, ggt)>=0.5:
+        #             group_preds.append(result['group'][vfid]['relation'][i])
+        #             group_gts.append(result['group'][vfid]['gtrelation'][j])
+        #             pred_ck[i]=1
+        #             gt_ck[j]=1
+        #             continue # To ensure that one predicted group only belongs to one group in ground-truth.
+        _,_,_,TP,FP,FN=group_eval(result['group'][vfid]['members'],result['group'][vfid]['gtmembers'])
+        safed=lambda x,y:0 if y==0 else x/y
+        prec=safed(TP,(TP+FP))        
+        recall=safed(TP,(TP+FN))
+        f1=safed(2*prec*recall,(prec+recall))
+        vids_f1[vfid[0]]=f1
+        tp+=TP
+        fn+=FN
+        fp+=FP
+    nrec={}
+    for n in range(2,7):
+        averec=[]
+        for vid in result['group'].keys():
+            _,rec,f1,_,_,_=Ngroup_eval(n,result['group'][vid]['members'],result['group'][vid]['gtmembers'])
+            averec.append(rec)
+        nrec[n]=sum(averec)/len(averec) if len(averec)!=0 else 0
+    safed=lambda x,y:0 if y==0 else x/y
+    prec=safed(tp,(tp+fp))        
+    recall=safed(tp,(tp+fn))
+    f1=safed(2*prec*recall,(prec+recall))
+    print(vids_f1)
+    # Here, we exclude the negative class 0.
+    # group_labels = [i for i in range(1, GROUP_NUM+1)]
+
+    # group_gts = torch.Tensor(group_gts)
+    # group_preds = torch.Tensor(group_preds)
+
+    # each_group_prec, each_group_recall, each_group_f1, _ = precision_recall_fscore_support(
+    #     group_gts.flatten().numpy(), group_preds.flatten().numpy(), average='binary')
+
+    report = {}
+    
+    for k,v in nrec.items():
+        report[str(k)]=v
+        
+    report['AUC_IoU']=AUC_IoU(result['group'],result['group'],list(result['group'].keys()))
+
+
+    mfz=0
+    mfm=0
+    
+    for vid in result['group'].keys():  # vid is video id.
+        TP,AL=mat_group_eval(result['group'][vid]['members'],result['group'][vid]['gtmembers'])
+        mfz+=TP
+        mfm+=AL
+    report['mat_IoU']=mfz/mfm if mfm!=0 else 0
+
+    report['group_f1'] = f1 #each_group_f1.mean().tolist()
+    report['group_prec'] = prec #each_group_prec.mean().tolist()
+    report['group_recall'] = recall #each_group_recall.mean().tolist()
+    # report['each_group_f1'] = each_group_f1.tolist()
+    # report['each_group_prec'] = each_group_prec.tolist()
+    # report['each_group_recall'] = each_group_recall.tolist()
+
+    # report['group_acc'] = (group_gts == group_preds).float().mean().tolist()
+
+    safeMkdir(cfg.result_path)
+    print_log(cfg.log_path, report)
+    saveDict(report, join(cfg.result_path, 'report.json'))
+    # since the 0 represents background.
+    group_labels = [1]
+
+    # for group_a in group_labels:
+    #     for group_b in group_labels:
+    #         group_num_matrix[group_labels.index(group_a), group_labels.index(group_b)] = (
+    #             (group_gts == group_a) & (group_preds == group_b)).sum()
+
+    # if not fast:
+    #     plot_confusion_matrix(group_num_matrix, save_path=join(cfg.result_path, 'group.svg'),
+    #                           normalize=True,
+    #                           target_names=['acquaintance', 'family', 'business'], title='Confusion Matrix')
+    return report['group_f1']
+
+def evaluate_from_file(path, dataset = "PANDA"):
     a=torch.load(path)
     class mycfg:
         result_path='./'
         log_path='./file.txt'
-    print(evaluatePANDA(mycfg(),a))
+    if dataset=="PANDA":
+        print(evaluatePANDA(mycfg(),a))
+    elif dataset=="JRDB":
+        print(evaluateJRDB_asPANDA(mycfg(),a))
+    else:
+        print("dataset not supported")        
 
 if __name__ == '__main__':
-    evaluate_from_file('/XXX/result.pt')
+    evaluate_from_file('/home/molijuly/fast/sambashare/SHGD_result/PANDA_features/model_ckpts/Refer2/result.pt', dataset="PANDA")
+    evaluate_from_file('/home/molijuly/fast/sambashare/SHGD_result/JRDB_features/result_ws.pt', dataset="JRDB")
