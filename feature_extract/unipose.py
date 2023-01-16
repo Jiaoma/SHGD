@@ -104,39 +104,80 @@ class Trainer(object):
         # Print model summary and metrics
         dump_input = torch.rand((1, 3, 368, 368))
         print(get_model_summary(self.model, dump_input.cuda()))
-    # @profile
-    def test(self,oimg:np.ndarray):
+
+    def test(self,oimg:np.ndarray,idx,vis=None,fid=None,pid=None):
         '''
         img: HxWx3
         '''
-        with torch.no_grad():
-            self.model.eval()
+        self.model.eval()
 
-            oimg  = np.array(oimg)
-            h,w=oimg.shape[:2]
-            img  = oimg.transpose(2, 0, 1).astype(np.float32)
-            img  = torch.from_numpy(img)
-            mean = [128.0, 128.0, 128.0]
-            std  = [256.0, 256.0, 256.0]
-            # for t, m, s in zip(img, mean, std):
-                # t.sub_(m).div_(s)
-            img.sub_(128.0).div_(256.0)
+        center   = [184, 184]
 
-            img       = torch.unsqueeze(img, 0)
+        oimg  = np.array(cv2.resize(oimg,(368,368)))
+        img  = oimg.transpose(2, 0, 1).astype(np.float32)
+        img  = torch.from_numpy(img)
+        mean = [128.0, 128.0, 128.0]
+        std  = [256.0, 256.0, 256.0]
+        for t, m, s in zip(img, mean, std):
+            t.sub_(m).div_(s)
 
-            # self.model.eval()
+        img       = torch.unsqueeze(img, 0)
 
-            input_var   = img.cuda()
-            input_var   = F.interpolate(input_var, size=(368,368), mode='bilinear', align_corners=True)
-            heat = self.model(input_var)
+        # self.model.eval()
 
-            heat = F.interpolate(heat, size=input_var.size()[2:], mode='bilinear', align_corners=True)
+        input_var   = img.cuda()
 
-            kpts = get_kpts(heat, img_h=h, img_w=w)
-            draw=draw_paint(oimg, kpts, self.dataset)
-            return draw
-    def __call__(self, data:np.ndarray) -> np.ndarray:
-        return self.test(data)
+        heat = self.model(input_var)
+
+        heat = F.interpolate(heat, size=input_var.size()[2:], mode='bilinear', align_corners=True)
+
+        kpts = get_kpts(heat, img_h=368.0, img_w=368.0)
+        if vis is not None:
+            draw=draw_paint(oimg, kpts, idx, 0, self.model_arch, self.dataset) #TODO: DEBUG from this sentence
+            
+            font = cv2.FONT_HERSHEY_SIMPLEX
+
+            # org
+            org = (50, 50)
+            
+            # fontScale
+            fontScale = 1
+            
+            # Blue color in BGR
+            color = (255, 0, 0)
+            
+            # Line thickness of 2 px
+            thickness = 2
+            
+            # Using cv2.putText() method
+            image = cv2.putText(draw, '%d_%d'%(fid,pid), org, font, 
+                            fontScale, color, thickness, cv2.LINE_AA)
+            vis.image(image.transpose(2,0,1))
+            
+            heat = heat.detach().cpu().numpy()
+
+            heat = heat[0].transpose(1,2,0)
+
+
+            for i in range(heat.shape[0]):
+                for j in range(heat.shape[1]):
+                    for k in range(heat.shape[2]):
+                        if heat[i,j,k] < 0:
+                            heat[i,j,k] = 0
+                        
+
+            # im       = cv2.resize(oimg,(368,368))
+
+            # heatmap = []
+            # for i in range(self.numClasses+1):
+            #     heatmap = cv2.applyColorMap(np.uint8(255*heat[:,:,i]), cv2.COLORMAP_JET)
+            #     im_heat  = cv2.addWeighted(im, 0.6, heatmap, 0.4, 0)
+            #     cv2.imwrite('samples/heat/unipose'+str(i)+'.png', im_heat)
+
+            #end
+        return torch.from_numpy(np.asarray(kpts).reshape(1,32)).float()
+    
+
 
         
 
@@ -145,6 +186,5 @@ class Trainer(object):
 if __name__=='__main__':
     img=cv2.imread('/home/molijuly/download.jpg')
     train=Trainer()
-    draw=train.test(img) # 15,2 -> 1,30
-    print(draw.shape)
-    print(draw.dtype)
+    kpts=train.test(img,0) # 15,2 -> 1,30
+    print(len(kpts))

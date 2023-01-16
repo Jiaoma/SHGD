@@ -105,7 +105,7 @@ def get_kpts(maps, img_h = 368.0, img_w = 368.0):
     return kpts
 
 
-def draw_paint(im, kpts, dataset):
+def draw_paint(im, kpts, mapNumber, epoch, model_arch, dataset):
 
            #       RED           GREEN           RED          YELLOW          YELLOW          PINK          GREEN
     colors = [[000,000,255], [000,255,000], [000,000,255], [255,255,000], [255,255,000], [255,000,255], [000,255,000],\
@@ -138,7 +138,7 @@ def draw_paint(im, kpts, dataset):
 
     elif dataset == "MPII":
                 #    HEAD    R.SLDR  R.BICEP  R.FRARM   L.SLDR  L.BICEP  L.FRARM   TORSO    L.HIP   L.THIGH   L.CALF   R.HIP   R.THIGH   R.CALF  EXT.HEAD
-        limbSeq = [[ 8, 9], [ 7,12], [12,11], [11,10], [ 7,13], [13,14], [ 7, 6], [ 6, 2], [ 2, 1], [ 1, 0], [ 6, 3], [ 3, 4], [ 4, 5], [ 7, 8]]
+        limbSeq = [[ 8, 9], [ 7, 12], [12, 11], [11, 10], [ 7, 13], [13, 14], [14, 15], [ 7, 6], [ 6, 2], [ 2, 1], [ 1, 0], [ 6, 3], [ 3, 4], [ 4, 5], [7, 8]]
 
     elif dataset == "NTID":
         limbSeq = [[ 0, 1], [ 1, 2], [ 2, 3], [ 2, 4], [ 4, 5], [ 5, 6], [ 2, 8], [ 8, 9],\

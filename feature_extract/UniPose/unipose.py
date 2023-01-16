@@ -93,7 +93,7 @@ class Trainer(object):
         self.bestPCK  = 0
         self.bestPCKh = 0
 
-        # Print model summary and metrics
+    # Print model summary and metrics
         dump_input = torch.rand([1, 3, 368, 368])
         print(get_model_summary(self.model, dump_input))
 
@@ -128,7 +128,7 @@ class Trainer(object):
             self.iters += 1
 
             if i == 10000:
-                break
+            	break
 
     def validation(self, epoch):
         self.model.eval()
@@ -174,7 +174,7 @@ class Trainer(object):
             mAP     =   AP[1:].sum()/(self.numClasses)
             mPCK    =  PCK[1:].sum()/(self.numClasses)
             mPCKh   = PCKh[1:].sum()/(self.numClasses)
-
+	
         printAccuracies(mAP, AP, mPCKh, PCKh, mPCK, PCK, self.dataset)
             
         PCKhAvg = PCKh.sum()/(self.numClasses+1)
@@ -243,32 +243,32 @@ class Trainer(object):
                 heatmap = cv2.applyColorMap(np.uint8(255*heat[:,:,i]), cv2.COLORMAP_JET)
                 im_heat  = cv2.addWeighted(im, 0.6, heatmap, 0.4, 0)
                 cv2.imwrite('samples/heat/unipose'+str(i)+'.png', im_heat)
-if __name=='__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrained', default=None,type=str, dest='pretrained')
-    parser.add_argument('--dataset', type=str, dest='dataset', default='LSP')
-    parser.add_argument('--train_dir', default='/PATH/TO/TRAIN',type=str, dest='train_dir')
-    parser.add_argument('--val_dir', type=str, dest='val_dir', default='/PATH/TO/LSP/VAL')
-    parser.add_argument('--model_name', default=None, type=str)
-    parser.add_argument('--model_arch', default='unipose', type=str)
-
-    starter_epoch =    0
-    epochs        =  100
-
-    args = parser.parse_args()
-
-    if args.dataset == 'LSP':
-        args.train_dir  = '/PATH/TO/LSP/TRAIN'
-        args.val_dir    = '/PATH/TO/LSP/VAL'
-        args.pretrained = '/home/molijuly/myProjects/ULRDigger/feature_extract/UniPose/UniPose_LSP.tar'
-    elif args.dataset == 'MPII':
-        args.train_dir  = '/PATH/TO/MPIII/TRAIN'
-        args.val_dir    = '/PATH/TO/MPIII/VAL'
-
-    trainer = Trainer(args)
-    for epoch in range(starter_epoch, epochs):
-        trainer.training(epoch)
-        trainer.validation(epoch)
         
-    # Uncomment for inference, demo, and samples for the trained model:
-    # trainer.test(0)
+parser = argparse.ArgumentParser()
+parser.add_argument('--pretrained', default=None,type=str, dest='pretrained')
+parser.add_argument('--dataset', type=str, dest='dataset', default='LSP')
+parser.add_argument('--train_dir', default='/PATH/TO/TRAIN',type=str, dest='train_dir')
+parser.add_argument('--val_dir', type=str, dest='val_dir', default='/PATH/TO/LSP/VAL')
+parser.add_argument('--model_name', default=None, type=str)
+parser.add_argument('--model_arch', default='unipose', type=str)
+
+starter_epoch =    0
+epochs        =  100
+
+args = parser.parse_args()
+
+if args.dataset == 'LSP':
+    args.train_dir  = '/PATH/TO/LSP/TRAIN'
+    args.val_dir    = '/PATH/TO/LSP/VAL'
+    args.pretrained = '/home/lijiacheng/code/ULRDigger/feature_extract/UniPose/UniPose_LSP.tar'
+elif args.dataset == 'MPII':
+    args.train_dir  = '/PATH/TO/MPIII/TRAIN'
+    args.val_dir    = '/PATH/TO/MPIII/VAL'
+
+trainer = Trainer(args)
+for epoch in range(starter_epoch, epochs):
+    trainer.training(epoch)
+    trainer.validation(epoch)
+	
+# Uncomment for inference, demo, and samples for the trained model:
+trainer.test(0)
